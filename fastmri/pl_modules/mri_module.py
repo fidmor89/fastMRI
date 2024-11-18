@@ -71,13 +71,13 @@ class MriModule(pl.LightningModule):
     def validation_step_end(self, val_logs):
         # check inputs
         for k in (
-            "batch_idx",
-            "fname",
-            "slice_num",
-            "max_value",
-            "output",
-            "target",
-            "val_loss",
+                "batch_idx",
+                "fname",
+                "slice_num",
+                "max_value",
+                "output",
+                "target",
+                "val_loss",
         ):
             if k not in val_logs.keys():
                 raise RuntimeError(
@@ -96,7 +96,7 @@ class MriModule(pl.LightningModule):
         if self.val_log_indices is None:
             self.val_log_indices = list(
                 np.random.permutation(len(self.trainer.val_dataloaders[0]))[
-                    : self.num_log_images
+                : self.num_log_images
                 ]
             )
 
@@ -151,7 +151,7 @@ class MriModule(pl.LightningModule):
     def log_image(self, name, image):
         self.logger.experiment.add_image(name, image, global_step=self.global_step)
 
-    def validation_epoch_end(self, val_logs):
+    def on_validation_epoch_end(self, val_logs):
         # aggregate losses
         losses = []
         mse_vals = defaultdict(dict)
@@ -174,10 +174,10 @@ class MriModule(pl.LightningModule):
 
         # check to make sure we have all files in all metrics
         assert (
-            mse_vals.keys()
-            == target_norms.keys()
-            == ssim_vals.keys()
-            == max_vals.keys()
+                mse_vals.keys()
+                == target_norms.keys()
+                == ssim_vals.keys()
+                == max_vals.keys()
         )
 
         # apply means across image volumes
@@ -193,14 +193,14 @@ class MriModule(pl.LightningModule):
             )
             metrics["nmse"] = metrics["nmse"] + mse_val / target_norm
             metrics["psnr"] = (
-                metrics["psnr"]
-                + 20
-                * torch.log10(
-                    torch.tensor(
-                        max_vals[fname], dtype=mse_val.dtype, device=mse_val.device
-                    )
+                    metrics["psnr"]
+                    + 20
+                    * torch.log10(
+                torch.tensor(
+                    max_vals[fname], dtype=mse_val.dtype, device=mse_val.device
                 )
-                - 10 * torch.log10(mse_val)
+            )
+                    - 10 * torch.log10(mse_val)
             )
             metrics["ssim"] = metrics["ssim"] + torch.mean(
                 torch.cat([v.view(-1) for _, v in ssim_vals[fname].items()])

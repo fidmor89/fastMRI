@@ -473,7 +473,7 @@ class AdaptiveVarNetModule(MriModule):
         for metric, value in metrics.items():
             self.log(f"train_metrics/{metric}", value / tot_examples)
 
-    def validation_epoch_end(self, val_logs):
+    def on_validation_epoch_end(self, val_logs):
         # aggregate losses
         losses = []
         mse_vals = defaultdict(dict)
